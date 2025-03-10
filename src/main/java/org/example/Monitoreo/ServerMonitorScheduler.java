@@ -19,7 +19,7 @@ public class ServerMonitorScheduler {
                 .withIdentity("serverMonitorTrigger", "monitorGroup")
                 .startNow()
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                        .withIntervalInSeconds(30) //realizar monitoreo cada 30 seg
+                        .withIntervalInSeconds(5) //realizar monitoreo cada 30 seg
                         .repeatForever())
                 .build();
 

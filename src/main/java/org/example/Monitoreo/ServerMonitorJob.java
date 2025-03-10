@@ -48,7 +48,7 @@ public class ServerMonitorJob implements Job {
 
     private void restartServer() {
         try {
-            String scriptPath = "C:/Users/camil/Documents/sistemas_distribuidos/Servidor_Banco/servidror-tcp/scripts/restart_server.bat";
+            String scriptPath = "C:/Users/camil/Documents/sistemas_distribuidos/bancoTCP-IP/servidror-tcp/scripts/restart_server.bat";
 
             Process process = Runtime.getRuntime().exec(scriptPath);
 
