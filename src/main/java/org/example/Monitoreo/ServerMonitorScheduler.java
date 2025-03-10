@@ -1,33 +1,53 @@
 package org.example.Monitoreo;
 
+import org.example.Util.Configuracion;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ServerMonitorScheduler {
 
-    public static void main(String[] args) throws SchedulerException {
-        String serverHost = "localhost";
-        int serverPort = 12345;
+    private static final Logger logger = LoggerFactory.getLogger(ServerMonitorScheduler.class);
+    private static Scheduler scheduler;
 
-        JobDetail job = JobBuilder.newJob(ServerMonitorJob.class)
-                .withIdentity("serverMonitorJob", "monitorGroup")
-                .usingJobData("serverHost", serverHost)
-                .usingJobData("serverPort", serverPort)
-                .build();
+    public static void main(String[] args) {
+        try {
+            String serverHost = Configuracion.SERVER_HOST;
+            int serverPort = Configuracion.SERVER_PORT;
 
-        Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity("serverMonitorTrigger", "monitorGroup")
-                .startNow()
-                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                        .withIntervalInSeconds(30) //realizar monitoreo cada 30 seg
-                        .repeatForever())
-                .build();
+            JobDetail job = JobBuilder.newJob(ServerMonitorJob.class)
+                    .withIdentity("serverMonitorJob", "monitorGroup")
+                    .usingJobData("serverHost", serverHost)
+                    .usingJobData("serverPort", serverPort)
+                    .build();
 
-        Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-        scheduler.start();
+            Trigger trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("serverMonitorTrigger", "monitorGroup")
+                    .startNow()
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withIntervalInSeconds(Configuracion.MONITOR_INTERVAL_SECONDS)
+                            .repeatForever())
+                    .build();
 
-        scheduler.scheduleJob(job, trigger);
+            scheduler = StdSchedulerFactory.getDefaultScheduler();
+            scheduler.start();
+            scheduler.scheduleJob(job, trigger);
 
-        System.out.println("Monitoreo del servidor iniciado. Presiona Ctrl+C para detener.");
+            logger.info("Monitoreo del servidor iniciado. Presiona Ctrl+C para detener.");
+
+        } catch (SchedulerException e) {
+            logger.error("Error al programar el trabajo de monitoreo", e);
+        }
+    }
+
+    /**
+     * Detiene el scheduler de manera controlada.
+     */
+    public static void shutdown() throws SchedulerException {
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdown(true);
+            logger.info("Scheduler detenido correctamente.");
+        }
     }
 }
