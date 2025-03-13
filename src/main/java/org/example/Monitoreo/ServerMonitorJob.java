@@ -80,7 +80,7 @@ public class ServerMonitorJob implements Job {
     }
 
     private void sendServerDownMessage(int inactivePort) {
-        try (Socket socket = new Socket("localhost", 12345);
+        try (Socket socket = new Socket("localhost", 5000);
              OutputStream outputStream = socket.getOutputStream();
              PrintWriter writer = new PrintWriter(outputStream, true)) {
 
